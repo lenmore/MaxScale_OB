@@ -2185,12 +2185,6 @@ void Rpl::handle_query_event(REP_HEADER* hdr, uint8_t* ptr)
 
 void Rpl::handle_event(REP_HEADER hdr, uint8_t* ptr)
 {
-    if (m_binlog_checksum)
-    {
-        // We don't care about the checksum at this point so we ignore it
-        hdr.event_size -= 4;
-    }
-
     // The following events are related to the actual data
     if (hdr.event_type == FORMAT_DESCRIPTION_EVENT)
     {
