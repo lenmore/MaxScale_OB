@@ -848,14 +848,19 @@ master.
 - **Dynamic**: Yes
 - **Default**: `false`
 
-Enable automated master failover. When automatic failover is enabled,
-traditional MariaDB Master-Slave clusters
-will automatically elect a new master if the old master goes down and stays down
-a number of iterations given in `failcount`. Failover will not take place when
-MaxScale is configured as a passive instance. For details on how MaxScale
-behaves in passive mode, see the documentation on `failover_timeout` below.
+Enable automatic master failover. When automatic failover is enabled, MaxScale
+will elect a new master server for the cluster if the old master goes down.  A
+server is assumed *Down* if it cannot be connected to, even if this is caused by
+incorrect credentials.  The failover is triggered if the master stays down for
+[failcount](#failcount) monitor intervals.  Failover will not take place if
+MaxScale is set [passive](../Getting-Started/Configuration-Guide.md#passive).
 
 The monitor user must have the SUPER and RELOAD privileges for failover to work.
+
+Failover is designed to be used with simple master-slave topologies. More
+complicated topologies, such as multilayered or circular replication, are not
+guaranteed to always work correctly. Test before using failover with such
+setups.
 
 #### `auto_rejoin`
 
@@ -864,20 +869,33 @@ The monitor user must have the SUPER and RELOAD privileges for failover to work.
 - **Dynamic**: Yes
 - **Default**: `false`
 
-Enable automatic joining of server to the cluster. When enabled, the monitor
-will attempt to direct standalone servers and servers
-replicating from a relay master to the main cluster master server, enforcing a
-1-master-N-slaves configuration.
+Enable automatic joining of servers to the cluster. When enabled, MaxScale will
+attempt to direct servers to replicate from the current cluster master if they
+are not currently doing so. Replication will be started on any standalone
+servers.  Servers that are replicating from another server will be redirected.
+This effectively enforces a 1-master-N-slaves topology. The current master
+itself is not redirected, so it can continue to replicate from an external
+master. Rejoin is also not performed on any server that is replicating from
+multiple sources, as this indicates a complicated topology (this rule is
+overridden by [enforce_simple_topology](#enforce_simple_topology)).
 
-For example, consider the following event series.
+This feature is often paired with [auto_failover](#auto_failover) to redirect
+the former master when it comes back online.  Sometimes this kind of rejoin will
+fail as the old master may have transactions that were never replicated to the
+current one. See [limitations](#limitations-and-requirements) for more
+information.
+
+As an example, consider the following series of events:
 
 1. Slave A goes down
 2. Master goes down and a failover is performed, promoting Slave B
 3. Slave A comes back
+4. Old master comes back
 
 Slave A is still trying to replicate from the downed master, since it wasn't
-online during failover. If `auto_rejoin` is on, Slave A will quickly be
-redirected to Slave B, the current master.
+online during failover. If *auto_rejoin* is on, Slave A will quickly be
+redirected to Slave B, the current master. The old master will also rejoin the
+cluster if possible.
 
 #### `switchover_on_low_disk_space`
 
