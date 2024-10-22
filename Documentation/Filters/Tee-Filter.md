@@ -223,12 +223,10 @@ options=/var/log/DataMart/InsertsLog
 [Orders-Listener]
 type=listener
 target=Orders
-protocol=MariaDBClient
 port=4011
 
 [DataMart-Listener]
 type=listener
 target=DataMart
-protocol=MariaDBClient
 port=4012
 ```

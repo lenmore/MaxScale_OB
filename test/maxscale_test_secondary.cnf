@@ -16,25 +16,21 @@ admin_port=8990
 type=server
 address=127.0.0.1
 port=3000
-protocol=MariaDBBackend
 
 [server2]
 type=server
 address=127.0.0.1
 port=3001
-protocol=MariaDBBackend
 
 [server3]
 type=server
 address=127.0.0.1
 port=3002
-protocol=MariaDBBackend
 
 [server4]
 type=server
 address=127.0.0.1
 port=3003
-protocol=MariaDBBackend
 
 [MariaDB-Monitor]
 type=monitor
@@ -90,23 +86,19 @@ filebase=/tmp/qla2.log
 [Read-Connection-Listener]
 type=listener
 service=Read-Connection-Router
-protocol=MariaDBClient
 port=5008
 
 [RW-Split-Listener]
 type=listener
 service=RW-Split-Router
-protocol=MariaDBClient
 port=5006
 
 [SchemaRouter-Listener]
 type=listener
 service=SchemaRouter-Router
-protocol=MariaDBClient
 port=5010
 
 [RW-Split-Hint-Listener]
 type=listener
 service=RW-Split-Hint-Router
-protocol=MariaDBClient
 port=5009

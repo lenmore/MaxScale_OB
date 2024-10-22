@@ -189,7 +189,6 @@ file=/tmp/Mirror-Router.log
 
 [Mirror-Listener]
 type=listener
-protocol=mariadbclient
 service=Mirror-Router
 port=3306
 ```
