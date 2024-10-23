@@ -465,7 +465,36 @@ static std::vector<std::tuple<std::string, uint32_t, qc_query_op_t>> test_cases
         "SET names UTF8MB4,autocommit=1",
         QUERY_TYPE_SESSION_WRITE|QUERY_TYPE_GSYSVAR_WRITE|QUERY_TYPE_ENABLE_AUTOCOMMIT|QUERY_TYPE_COMMIT,
         QUERY_OP_SET
-    }
+    },
+
+    //
+    // XA transactions
+    //
+    {
+        "XA START 'test'",
+        QUERY_TYPE_BEGIN_TRX,
+        QUERY_OP_UNDEFINED
+    },
+    {
+        "XA END 'test'",
+        QUERY_TYPE_WRITE,
+        QUERY_OP_UNDEFINED
+    },
+    {
+        "XA PREPARE 'test'",
+        QUERY_TYPE_COMMIT,
+        QUERY_OP_UNDEFINED
+    },
+    {
+        "XA COMMIT 'test'",
+        QUERY_TYPE_WRITE,
+        QUERY_OP_UNDEFINED
+    },
+    {
+        "XA COMMIT 'test' ONE PHASE",
+        QUERY_TYPE_COMMIT,
+        QUERY_OP_UNDEFINED
+    },
 };
 
 void test_kill(Tester& tester)
