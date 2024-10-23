@@ -495,6 +495,11 @@ static std::vector<std::tuple<std::string, uint32_t, qc_query_op_t>> test_cases
         QUERY_TYPE_COMMIT,
         QUERY_OP_UNDEFINED
     },
+    {
+        "XA ROLLBACK 'test'",
+        QUERY_TYPE_ROLLBACK,
+        QUERY_OP_UNDEFINED
+    },
 };
 
 void test_kill(Tester& tester)

@@ -3605,6 +3605,10 @@ cmd ::= XA PREPARE xid. {
   mxs_sqlite3CommitTransaction(pParse);
 }
 
+cmd ::= XA ROLLBACK xid. {
+  mxs_sqlite3RollbackTransaction(pParse);
+}
+
 cmd ::= XA COMMIT xid ONE PHASE. {
   mxs_sqlite3CommitTransaction(pParse);
 }

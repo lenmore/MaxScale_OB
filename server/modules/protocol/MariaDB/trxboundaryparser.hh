@@ -769,6 +769,10 @@ private:
             type_mask |= QUERY_TYPE_COMMIT;
             break;
 
+        case TK_ROLLBACK:
+            type_mask |= QUERY_TYPE_ROLLBACK;
+            break;
+
         case TK_COMMIT:
             {
                 skip_value();
