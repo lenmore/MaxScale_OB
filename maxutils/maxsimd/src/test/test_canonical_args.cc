@@ -297,16 +297,28 @@ int main(int argc, char** argv)
 {
     int rc = EXIT_SUCCESS;
 
-    for (const auto& test : tests)
+    if (argc == 1)
     {
-        std::string sql = test.sql;
-        maxsimd::CanonicalArgs args;
-        maxsimd::get_canonical_args(&sql, &args);
-
-        if (!check(sql, args, test))
+        for (const auto& test : tests)
         {
-            std::cout << "Error! SQL: " << test.sql << "\n\n";
-            rc = EXIT_FAILURE;
+            std::string sql = test.sql;
+            maxsimd::CanonicalArgs args;
+            maxsimd::get_canonical_args(&sql, &args);
+
+            if (!check(sql, args, test))
+            {
+                std::cout << "Error! SQL: " << test.sql << "\n\n";
+                rc = EXIT_FAILURE;
+            }
+        }
+    }
+    else
+    {
+        for (int i = 1; i < argc; ++i)
+        {
+            std::string s = argv[i];
+
+            std::cout << *maxsimd::get_canonical(&s) << std::endl;
         }
     }
 
