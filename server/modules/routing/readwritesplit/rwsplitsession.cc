@@ -914,10 +914,11 @@ bool RWSplitSession::handleError(mxs::ErrorType type, GWBUF* errmsgbuf, mxs::End
     RWBackend* backend = static_cast<RWBackend*>(endpoint->get_userdata());
     mxb_assert(backend && backend->in_use());
 
-    if (reply.has_started())
+    if (reply.has_started() || route_info().large_query())
     {
-        MXB_ERROR("Server '%s' was lost in the middle of a resultset, cannot continue the session: %s",
-                  backend->name(), mxs::extract_error(errmsgbuf).c_str());
+        MXB_ERROR("Server '%s' was lost in the middle of a %s, cannot continue the session: %s",
+                  backend->name(), reply.has_started() ? "resultset" : "large multi-packet query",
+                  mxs::extract_error(errmsgbuf).c_str());
 
         // This effectively causes an instant termination of the client connection and prevents any errors
         // from being sent to the client (MXS-2562).
