@@ -3480,7 +3480,6 @@ sudden connection spikes and rejected connections. For more information see
 [MyListener1]
 type=listener
 service=MyService1
-protocol=MariaDB
 port=3006
 ```
 
@@ -3501,8 +3500,15 @@ that is defined elsewhere in the configuration file.
 - **Default**: `mariadb`
 
 The name of the protocol module used for communication between the client and
-MaxScale. The same protocol is also used for backend communication. Usually this
-is set to "mariadb". Other allowed values are "postgresql" and "nosqlprotocol".
+MaxScale. The same protocol is also used for backend communication.
+
+Usually this does not need to be defined as the default protocol is the MariaDB
+network protocol that is used by SQL connections.
+
+For NoSQL client connections, the protocol must be set to
+`protocol=nosqlprotocol`. For more details on how to configure the NoSQL
+protocol, refer to the [NoSQL Protocol](../Protocols/NoSQL.md) module
+documentation.
 
 ### `address`
 
@@ -4165,7 +4171,6 @@ Authority file are also provided.
 [RW-Split-Listener]
 type=listener
 service=RW-Split-Router
-protocol=MariaDBClient
 port=3306
 ssl=true
 ssl_cert=/usr/local/mariadb/maxscale/ssl/crt.maxscale.pem

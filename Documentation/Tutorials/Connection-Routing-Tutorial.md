@@ -64,13 +64,11 @@ may have multiple listeners but for this tutorial one per service is enough.
 [Write-Listener]
 type=listener
 service=Write-Service
-protocol=MariaDBClient
 port=3306
 
 [Read-Listener]
 type=listener
 service=Read-Service
-protocol=MariaDBClient
 port=3307
 ```
 
@@ -78,8 +76,7 @@ The *service* parameter tells which service the listener connects to. For the
 *Write-Listener* we set it to *Write-Service* and for the *Read-Listener* we set
 it to *Read-Service*.
 
-A listener must define the protocol module it uses. This must be *MariaDBClient* for all
-database listeners. *port* defines the network port to listen on.
+A listener must define the network port to listen on.
 
 The optional *address*-parameter defines the local address the listener should bind to.
 This may be required when the host machine has multiple network interfaces. The

@@ -570,8 +570,8 @@ bool Replicator::Imp::process_one_event(SQL::Event& event)
         {
             commit = true;
         }
-
         [[fallthrough]];
+
     case USER_VAR_EVENT:
         if (m_implicit_commit)
         {

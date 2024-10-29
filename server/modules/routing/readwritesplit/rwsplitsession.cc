@@ -950,10 +950,12 @@ void RWSplitSession::handle_error(mxs::ErrorType type, const std::string& messag
 
     MXB_INFO("Server '%s' failed: %s", backend->name(), message.c_str());
 
-    if (reply.has_started() && backend->is_expected_response() && !m_config->transaction_replay)
+    if (backend->is_expected_response()
+        && ((reply.has_started() && !m_config->transaction_replay) || route_info().multi_part_packet()))
     {
-        throw RWSException("Server '", backend->name(), "' was lost in the middle of a resultset, ",
-                           "closing session: ", message);
+        throw RWSException("Server '", backend->name(), "' was lost in the middle of a ",
+                           reply.has_started() ? "resultset" : "large multi-packet query",
+                           ", closing session: ", message);
     }
     else if (m_pSession->killed_by_query())
     {
