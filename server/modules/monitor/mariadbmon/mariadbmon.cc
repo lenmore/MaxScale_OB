@@ -246,28 +246,37 @@ cfg::ParamInteger s_script_max_rlag(
     -1, cfg::Param::AT_RUNTIME);
 
 cfg::ParamCount s_cs_admin_port(
-    &s_spec, "cs_admin_port", "Port of the ColumnStore administrative daemon.", 8640);
+    &s_spec, "cs_admin_port", "Port of the ColumnStore administrative daemon.", 8640,
+    cfg::Param::AT_RUNTIME);
 
 const char CS_ADMIN_BASE_PATH_DESC[] =
     "The base path to be used when accessing the ColumnStore administrative daemon. "
     "If, for instance, a daemon URL is https://localhost:8640/cmapi/0.4.0/node/start "
     "then the admin_base_path is \"/cmapi/0.4.0\".";
-cfg::ParamString s_cs_admin_base_path(&s_spec, "cs_admin_base_path", CS_ADMIN_BASE_PATH_DESC, "/cmapi/0.4.0");
+cfg::ParamString s_cs_admin_base_path(&s_spec, "cs_admin_base_path", CS_ADMIN_BASE_PATH_DESC, "/cmapi/0.4.0",
+                                      cfg::Param::AT_RUNTIME);
 
-cfg::ParamString s_cs_admin_api_key(&s_spec, "cs_admin_api_key", "The API key used in communication with the "
-                                                                 "ColumnStore admin daemon.", "");
+cfg::ParamString s_cs_admin_api_key(&s_spec, "cs_admin_api_key",
+                                    "The API key used in communication with the ColumnStore admin daemon.",
+                                    "", cfg::Param::AT_RUNTIME);
 
 cfg::ParamString s_ssh_user(&s_spec, CONFIG_SSH_USER,
-                            "SSH username. Used for running remote commands on servers.", "");
+                            "SSH username. Used for running remote commands on servers.", "",
+                            cfg::Param::AT_RUNTIME);
+
 cfg::ParamPath s_ssh_keyfile(&s_spec, CONFIG_SSH_KEYFILE,
                              "SSH keyfile. Used for running remote commands on servers.",
-                             cfg::ParamPath::R | cfg::ParamPath::F, "");
+                             cfg::ParamPath::R | cfg::ParamPath::F, "", cfg::Param::AT_RUNTIME);
+
 cfg::ParamBool s_ssh_check_host_key(&s_spec, "ssh_check_host_key", "Is SSH host key check enabled.", true,
                                     cfg::Param::AT_RUNTIME);
+
 cfg::ParamSeconds s_ssh_timeout(&s_spec, "ssh_timeout", "SSH connection and command timeout", 10s,
                                 cfg::Param::AT_RUNTIME);
+
 cfg::ParamCount s_ssh_port(&s_spec, "ssh_port", "SSH port. Used for running remote commands on servers.",
                            22, 0, 65535, cfg::Param::AT_RUNTIME);
+
 cfg::ParamCount s_rebuild_port(&s_spec, "rebuild_port", "Listen port used for transferring server backup.",
                                4444, 0, 65535, cfg::Param::AT_RUNTIME);
 cfg::ParamString s_mbu_use_memory(&s_spec, "mariabackup_use_memory", "Mariabackup buffer pool size.",
