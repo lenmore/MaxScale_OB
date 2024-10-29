@@ -117,7 +117,6 @@ filters=BinlogFilter
 [BinlogListener]
 type=listener
 service=BinlogServer
-protocol=MySQLClient
 port=4000
 ```
 

@@ -58,7 +58,6 @@ start_index=15
 [replication-listener]
 type=listener
 service=replication-service
-protocol=MariaDBClient
 port=3306
 
 # The client listener for the avro-service

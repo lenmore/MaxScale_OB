@@ -385,6 +385,7 @@ static Keyword aKeywordTable[] = {
   { "OLD_PASSWORD",     "TK_OLD_PASSWORD", ALWAYS                 },
 #endif
   { "ON",               "TK_ON",           ALWAYS                 },
+  { "ONE",              "TK_ONE",          ALWAYS                 },
   { "ONLY",             "TK_ONLY",         ALWAYS                 },
 #ifdef MAXSCALE
   { "OPEN",             "TK_OPEN",         ALWAYS                 },
@@ -404,6 +405,7 @@ static Keyword aKeywordTable[] = {
   { "PARTITIONS",       "TK_PARTITIONS",   ALWAYS                 },
   { "PASSWORD",         "TK_PASSWORD",     ALWAYS                 },
   { "PERSISTENT",       "TK_PERSISTENT",   ALWAYS                 },
+  { "PHASE",            "TK_PHASE",        ALWAYS                 },
 #endif
 #ifndef MAXSCALE
   { "PLAN",             "TK_PLAN",         EXPLAIN                },

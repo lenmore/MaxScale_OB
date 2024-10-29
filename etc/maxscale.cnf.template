@@ -114,11 +114,9 @@ password=service_pw
 [Read-Only-Listener]
 type=listener
 service=Read-Only-Service
-protocol=mariadbprotocol
 port=4008
 
 [Read-Write-Listener]
 type=listener
 service=Read-Write-Service
-protocol=mariadbprotocol
 port=4006

@@ -54,7 +54,6 @@ public:
         TK_COMMITTED,
         TK_CONSISTENT,
         TK_DOT,
-        TK_END,
         TK_EQ,
         TK_FALSE,
         TK_GLOBAL,
@@ -63,7 +62,10 @@ public:
         TK_LEVEL,
         TK_NAMES,
         TK_ONE,
+        TK_ONE_KW,
         TK_ONLY,
+        TK_PHASE,
+        TK_PREPARE,
         TK_READ,
         TK_REPEATABLE,
         TK_ROLLBACK,
@@ -763,8 +765,30 @@ private:
             type_mask |= QUERY_TYPE_BEGIN_TRX;
             break;
 
-        case TK_END:
+        case TK_PREPARE:
             type_mask |= QUERY_TYPE_COMMIT;
+            break;
+
+        case TK_ROLLBACK:
+            type_mask |= QUERY_TYPE_ROLLBACK;
+            break;
+
+        case TK_COMMIT:
+            {
+                skip_value();
+                token_t tok = next_token();
+
+                while (tok == TK_COMMA)
+                {
+                    skip_value();
+                    tok = next_token();
+                }
+
+                if (tok == TK_ONE_KW && next_token() == TK_PHASE)
+                {
+                    type_mask |= QUERY_TYPE_COMMIT;
+                }
+            }
             break;
 
         case PARSER_EXHAUSTED:
@@ -1064,11 +1088,6 @@ private:
                 token = TK_EQ;
                 break;
 
-            case 'e':
-            case 'E':
-                token = expect_token(TBP_EXPECT_TOKEN("END"), TK_END);
-                break;
-
             case 'f':
             case 'F':
                 token = expect_token(TBP_EXPECT_TOKEN("FALSE"), TK_FALSE);
@@ -1117,10 +1136,28 @@ private:
                     {
                         token = expect_token(TBP_EXPECT_TOKEN("ONLY"), TK_ONLY);
                     }
+                    else if (is_next_alpha('E', 2))
+                    {
+                        // A literal ONE keyword
+                        token = expect_token(TBP_EXPECT_TOKEN("ONE"), TK_ONE_KW);
+                    }
                     else
                     {
+                        // This is for SET autocommit=ON
                         token = expect_token(TBP_EXPECT_TOKEN("ON"), TK_ONE);
                     }
+                }
+                break;
+
+            case 'p':
+            case 'P':
+                if (is_next_alpha('H'))
+                {
+                    token = expect_token(TBP_EXPECT_TOKEN("PHASE"), TK_PHASE);
+                }
+                else
+                {
+                    token = expect_token(TBP_EXPECT_TOKEN("PREPARE"), TK_PREPARE);
                 }
                 break;
 
