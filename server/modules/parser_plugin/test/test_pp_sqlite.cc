@@ -604,6 +604,46 @@ static std::vector<std::tuple<std::string, uint32_t, mxs::sql::OpCode, StmtType>
         mxs::sql::OP_UNDEFINED,
         MULTI
     },
+
+    //
+    // XA transactions
+    //
+    {
+        "XA START 'test'",
+        mxs::sql::TYPE_BEGIN_TRX,
+        mxs::sql::OP_UNDEFINED,
+        SINGLE
+    },
+    {
+        "XA END 'test'",
+        mxs::sql::TYPE_WRITE,
+        mxs::sql::OP_UNDEFINED,
+        SINGLE
+    },
+    {
+        "XA PREPARE 'test'",
+        mxs::sql::TYPE_COMMIT,
+        mxs::sql::OP_UNDEFINED,
+        SINGLE
+    },
+    {
+        "XA COMMIT 'test'",
+        mxs::sql::TYPE_WRITE,
+        mxs::sql::OP_UNDEFINED,
+        SINGLE
+    },
+    {
+        "XA COMMIT 'test' ONE PHASE",
+        mxs::sql::TYPE_COMMIT,
+        mxs::sql::OP_UNDEFINED,
+        SINGLE
+    },
+    {
+        "XA ROLLBACK 'test'",
+        mxs::sql::TYPE_ROLLBACK,
+        mxs::sql::OP_UNDEFINED,
+        SINGLE
+    },
 };
 
 void test_kill(Tester& tester)

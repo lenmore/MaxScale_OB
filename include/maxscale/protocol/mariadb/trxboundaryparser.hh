@@ -55,7 +55,6 @@ public:
         TOK_COMMITTED,
         TOK_CONSISTENT,
         TOK_DOT,
-        TOK_END,
         TOK_EQ,
         TOK_FALSE,
         TOK_GLOBAL,
@@ -64,7 +63,10 @@ public:
         TOK_LEVEL,
         TOK_NAMES,
         TOK_ONE,
+        TOK_ONE_KW,
         TOK_ONLY,
+        TOK_PHASE,
+        TOK_PREPARE,
         TOK_READ,
         TOK_REPEATABLE,
         TOK_ROLLBACK,
@@ -764,8 +766,30 @@ private:
             type_mask |= mxs::sql::TYPE_BEGIN_TRX;
             break;
 
-        case TOK_END:
+        case TOK_PREPARE:
             type_mask |= mxs::sql::TYPE_COMMIT;
+            break;
+
+        case TOK_ROLLBACK:
+            type_mask |= mxs::sql::TYPE_ROLLBACK;
+            break;
+
+        case TOK_COMMIT:
+            {
+                skip_value();
+                token_t tok = next_token();
+
+                while (tok == TOK_COMMA)
+                {
+                    skip_value();
+                    tok = next_token();
+                }
+
+                if (tok == TOK_ONE_KW && next_token() == TOK_PHASE)
+                {
+                    type_mask |= mxs::sql::TYPE_COMMIT;
+                }
+            }
             break;
 
         case PARSER_EXHAUSTED:
@@ -1060,11 +1084,6 @@ private:
                 token = TOK_EQ;
                 break;
 
-            case 'e':
-            case 'E':
-                token = expect_token(TBP_EXPECT_TOKEN("END"), TOK_END);
-                break;
-
             case 'f':
             case 'F':
                 token = expect_token(TBP_EXPECT_TOKEN("FALSE"), TOK_FALSE);
@@ -1113,10 +1132,28 @@ private:
                     {
                         token = expect_token(TBP_EXPECT_TOKEN("ONLY"), TOK_ONLY);
                     }
+                    else if (is_next_alpha('E', 2))
+                    {
+                        // A literal ONE keyword
+                        token = expect_token(TBP_EXPECT_TOKEN("ONE"), TOK_ONE_KW);
+                    }
                     else
                     {
+                        // This is for SET autocommit=ON
                         token = expect_token(TBP_EXPECT_TOKEN("ON"), TOK_ONE);
                     }
+                }
+                break;
+
+            case 'p':
+            case 'P':
+                if (is_next_alpha('H'))
+                {
+                    token = expect_token(TBP_EXPECT_TOKEN("PHASE"), TOK_PHASE);
+                }
+                else
+                {
+                    token = expect_token(TBP_EXPECT_TOKEN("PREPARE"), TOK_PREPARE);
                 }
                 break;
 

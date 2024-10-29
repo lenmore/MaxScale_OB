@@ -133,7 +133,6 @@ port that the user connects to. We will use the port 4000.
 [Sharded-Service-Listener]
 type=listener
 service=Sharded-Service
-protocol=MariaDBClient
 port=4000
 ```
 

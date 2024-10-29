@@ -663,7 +663,7 @@ columnid(A) ::= nm(X). {
   WAIT
   /*WITH*/
   WORK
-  XA
+  XA ONE PHASE
 %endif
   .
 %wildcard ANY.
@@ -3581,11 +3581,14 @@ cmd ::= START TRANSACTION start_transaction_characteristics(X). {
 //////////////////////// The XA statement ////////////////////////////////////
 //
 
-// The XA transaction ID consists of two strings and one integer with only the
-// first string being mandatory.
-xid ::= STRING.
-xid ::= STRING COMMA STRING.
-xid ::= STRING COMMA STRING COMMA INTEGER.
+// The XA transaction ID consists of one to three literal values.
+// The literals can be strings or integers.
+xid_value ::= STRING.
+xid_value ::= INTEGER.
+
+xid ::= xid_value.
+xid ::= xid_value COMMA xid_value.
+xid ::= xid_value COMMA xid_value COMMA xid_value.
 
 xa_start_opt ::= .
 xa_start_opt ::= JOIN.
@@ -3598,12 +3601,20 @@ cmd ::= XA xa_start xid xa_start_opt. {
   mxs_sqlite3BeginTransaction(pParse, MXS_BEGIN_TRANSACTION, TK_START, 0);
 }
 
-xa_end_opt ::= .
-xa_end_opt ::= SUSPEND.
-xa_end_opt ::= SUSPEND FOR MIGRATE.
-
-cmd ::= XA END xid xa_end_opt. {
+cmd ::= XA PREPARE xid. {
   mxs_sqlite3CommitTransaction(pParse);
+}
+
+cmd ::= XA ROLLBACK xid. {
+  mxs_sqlite3RollbackTransaction(pParse);
+}
+
+cmd ::= XA COMMIT xid ONE PHASE. {
+  mxs_sqlite3CommitTransaction(pParse);
+}
+
+cmd ::= XA COMMIT xid. {
+  maxscale_set_type_mask(QUERY_TYPE_WRITE);
 }
 
 //////////////////////// The TRUNCATE statement ////////////////////////////////////

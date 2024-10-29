@@ -226,7 +226,7 @@ private:
 
         default:
             mxb_assert(!true);
-            // fallthrough
+            [[fallthrough]];
 
         case type::integer:
         case type::number:

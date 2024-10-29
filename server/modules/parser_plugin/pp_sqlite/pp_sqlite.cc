@@ -2824,7 +2824,12 @@ public:
                         m_type_mask = mxs::sql::TYPE_BEGIN_TRX;
                         break;
 
-                    case TK_END:
+                    case TK_PREPARE:
+                        // Technically TK_COMMIT should also be here to cover the case where
+                        // XA COMMIT xid ONE PHASE is used. Right now this fails to parse if
+                        // used with hex literals. We assume it's XA COMMIT xid instead of
+                        // XA COMMIT xid ONE PHASE simply because the former is more common than
+                        // the latter and we don't tokenize the tail of the query.
                         m_type_mask = mxs::sql::TYPE_COMMIT;
                         break;
 
