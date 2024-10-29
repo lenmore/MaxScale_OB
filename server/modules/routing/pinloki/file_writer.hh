@@ -36,7 +36,9 @@ class FileWriter
 public:
     FileWriter(InventoryWriter* inv, const Writer& writer);
 
+    void begin_txn();
     void add_event(maxsql::RplEvent& rpl_event);
+    void commit_txn();
 private:
     struct WritePosition
     {
@@ -55,12 +57,14 @@ private:
     void write_rotate(WritePosition& pos, const std::string& to_file_name);
     void write_gtid_list(WritePosition& pos);
 
-    bool             m_newborn = true;
-    bool             m_ignore_preamble = false;
-    InventoryWriter& m_inventory;
-    const Writer&    m_writer;
-    WritePosition    m_current_pos;
-    maxsql::Rotate   m_rotate;
+    bool              m_newborn = true;
+    bool              m_ignore_preamble = false;
+    InventoryWriter&  m_inventory;
+    const Writer&     m_writer;
+    WritePosition     m_current_pos;
+    maxsql::Rotate    m_rotate;
+    bool              m_in_transaction = false;
+    std::vector<char> m_tx_buffer;
 
     std::unique_ptr<mxq::EncryptCtx> m_encrypt;
 };
