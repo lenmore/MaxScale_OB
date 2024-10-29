@@ -951,11 +951,13 @@ bool RWSplitSession::handleError(mxs::ErrorType type, const std::string& message
     mxb_assert(backend && backend->in_use());
     std::string errmsg;
 
-    if (reply.has_started() && backend->is_expected_response() && !m_config->transaction_replay)
+    if (backend->is_expected_response()
+        && ((reply.has_started() && !m_config->transaction_replay) || route_info().multi_part_packet()))
     {
         errmsg = mxb::string_printf(
-            "Server '%s' was lost in the middle of a resultset, cannot continue the session: %s",
-            backend->name(), message.c_str());
+            "Server '%s' was lost in the middle of a %s, cannot continue the session: %s",
+            backend->name(), reply.has_started() ? "resultset" : "large multi-packet query",
+            message.c_str());
         return mxs::RouterSession::handleError(type, errmsg, endpoint, reply);
     }
     else if (m_pSession->killed_by_query())
