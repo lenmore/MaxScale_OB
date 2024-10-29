@@ -46,7 +46,6 @@ threads=auto
 type=server
 address=127.0.0.1
 port=3306
-protocol=MariaDBBackend
 
 [cdc-service]
 type=service

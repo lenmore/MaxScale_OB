@@ -549,7 +549,6 @@ password=maxpwd
 [Replication-Listener]
 type=listener
 service=Replication-Proxy
-protocol=MariaDBClient
 port=3306
 ```
 

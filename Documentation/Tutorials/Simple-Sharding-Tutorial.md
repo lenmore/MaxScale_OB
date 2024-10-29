@@ -58,7 +58,6 @@ After this we configure a listener for the service. The listener is the actual p
 [Sharded-Service-Listener]
 type=listener
 service=Sharded-Service
-protocol=MariaDBClient
 port=4000
 ```
 

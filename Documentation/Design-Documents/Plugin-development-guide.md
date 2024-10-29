@@ -446,7 +446,6 @@ dummy_setting=two
 [RR-Listener]
 type=listener
 service=RR-Service
-protocol=MariaDBClient
 port=4009
 ```
 

@@ -418,7 +418,6 @@ events from MariaDB into Kafka as JSON:
 type=server
 address=127.0.0.1
 port=3306
-protocol=MariaDBBackend
 
 # The monitor for the server
 [MariaDB-Monitor]

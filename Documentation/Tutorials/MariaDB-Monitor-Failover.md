@@ -26,7 +26,6 @@ Somewhat simplified, the MaxScale configuration file would look like:
 type=server
 address=192.168.121.51
 port=3306
-protocol=MariaDBBackend
 
 [server2]
 ...

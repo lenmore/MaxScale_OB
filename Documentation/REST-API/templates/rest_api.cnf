@@ -7,13 +7,11 @@ users_refresh_time=0s
 type=server
 address=127.0.0.1
 port=3000
-protocol=MariaDBBackend
 
 [server2]
 type=server
 address=127.0.0.1
 port=3001
-protocol=MariaDBBackend
 
 [MariaDB-Monitor]
 type=monitor
@@ -54,11 +52,9 @@ filebase=/tmp/qla.log
 [Read-Connection-Listener]
 type=listener
 service=Read-Connection-Router
-protocol=MariaDBClient
 port=4008
 
 [RW-Split-Listener]
 type=listener
 service=RW-Split-Router
-protocol=MariaDBClient
 port=4006

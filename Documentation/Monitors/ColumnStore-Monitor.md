@@ -108,13 +108,11 @@ In the following is shown a configuration using dynamic node detection.
 type=server
 address=mcs1
 port=3306
-protocol=mariadbbackend
 
 [CsBootstrap2]
 type=server
 address=mcs2
 port=3306
-protocol=mariadbbackend
 
 [CsMonitor]
 type=monitor
