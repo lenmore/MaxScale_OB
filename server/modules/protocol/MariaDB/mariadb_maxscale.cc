@@ -341,19 +341,14 @@ void mxs_update_server_charset(MYSQL* mysql, SERVER* server)
         server->set_charset(charset);
     }
 
-    // NOTE: The order in which these queries are run must have the newer versions first and the older ones
-    // later. Do not reorder them!
+    // Same as above, do not reorder these.
     auto CHARSET_QUERIES =
     {
-        // For MariaDB 10.10 and newer. The information_schema.COLLATIONS table now has rows with NULL ID
-        // values and the value of @@global.collation_server is no longer found there. Instead, we have to
-        // query a different table.
-        "SELECT ID, FULL_COLLATION_NAME, CHARACTER_SET_NAME FROM information_schema.COLLATION_CHARACTER_SET_APPLICABILITY"
+        "SELECT ID, FULL_COLLATION_NAME, CHARACTER_SET_NAME FROM "
+        "information_schema.COLLATION_CHARACTER_SET_APPLICABILITY",
 
-        // For old MariaDB versions that do not have information_schema.COLLATION_CHARACTER_SET_APPLICABILITY
         "SELECT id, collation_name, character_set_name FROM information_schema.collations",
     };
-
 
     for (const char* charset_query : CHARSET_QUERIES)
     {
@@ -377,8 +372,8 @@ void mxs_update_server_charset(MYSQL* mysql, SERVER* server)
                 }
 
                 server->set_collations(std::move(collations));
-
                 mysql_free_result(res);
+                break;
             }
         }
     }
