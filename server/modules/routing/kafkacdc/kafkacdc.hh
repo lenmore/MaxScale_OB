@@ -37,6 +37,8 @@ public:
     class Config : public mxs::config::Configuration
     {
     public:
+        using seconds = std::chrono::seconds;
+
         Config(const std::string& name, KafkaCDC* router);
 
         bool post_configure(const std::map<std::string, mxs::ConfigParameters>& nested_params) override;
@@ -44,7 +46,7 @@ public:
         std::string bootstrap_servers;
         std::string topic;
         bool        enable_idempotence;
-        int64_t     timeout;
+        seconds     timeout;
         std::string gtid;
         int64_t     server_id;
         bool        cooperative_replication;
