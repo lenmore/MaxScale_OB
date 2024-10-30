@@ -220,6 +220,20 @@ bool Specification::validate(const mxs::ConfigParameters& params,
     {
         if (mandatory_params_defined(provided))
         {
+            for (const auto& kv : m_params)
+            {
+                const auto& name = kv.first;
+                const auto* pParam = kv.second;
+
+                if (parameters_with_params.find(name) == parameters_with_params.end()
+                    && pParam->takes_parameters() && pParam->has_default_value())
+                {
+                    // TODO: Wrap this in pParam->parameter_prefix() in newer versions
+                    std::string real_name = pParam->default_to_string();
+                    parameters_with_params[mxb::lower_case_copy(real_name)] = pParam;
+                }
+            }
+
             for (const auto& kv : parameters_with_params)
             {
                 const auto& my_params = nested_parameters[kv.first];
