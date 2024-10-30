@@ -77,6 +77,10 @@ public:
     static constexpr const char* const HELP = "";
 
     using ImmediateCommand::ImmediateCommand;
+    // We need this to make it so that the private authenticate() methods don't hide the
+    // one in OpMsgCommand. This is not really necessary but the compiler would otherwise
+    // complain about it.
+    using OpMsgCommand::authenticate;
 
     Response::Status populate_response(DocumentBuilder& doc) override
     {
@@ -224,6 +228,10 @@ public:
     static constexpr const char* const HELP = "";
 
     using ImmediateCommand::ImmediateCommand;
+    // We need this to make it so that the private authenticate() methods don't hide the
+    // one in OpMsgCommand. This is not really necessary but the compiler would otherwise
+    // complain about it.
+    using OpMsgCommand::authenticate;
 
     Response::Status populate_response(DocumentBuilder& doc) override
     {
