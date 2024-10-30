@@ -54,3 +54,9 @@ add_test(NAME test_compare_canonicals COMMAND compare_canonicals
 add_executable(test_canonical_args test_canonical_args.cc)
 target_link_libraries(test_canonical_args maxsimd)
 add_test(NAME test_canonical_args COMMAND test_canonical_args)
+
+# For debug builds on aarch64 with ASAN, some tests are very slow unless optimizations are enabled.
+if (WITH_ASAN AND CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+  target_compile_options(canonizer PRIVATE -O2)
+  target_compile_options(test_canonical_args PRIVATE -O2)
+endif()

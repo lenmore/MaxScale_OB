@@ -522,7 +522,7 @@ public:
 
     std::string default_to_string() const override
     {
-        return static_cast<const ParamType*>(this)->to_string(m_default_value);
+        return static_cast<const ParamType*>(this)->to_string(default_value());
     }
 
     bool validate(const std::string& value_as_string, std::string* pMessage) const override

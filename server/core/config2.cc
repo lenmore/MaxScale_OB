@@ -266,6 +266,16 @@ bool Specification::validate(const Configuration* pConfig,
         {
             map<string, mxs::ConfigParameters> unrecognized_parameters = nested_parameters;
 
+            for (const auto& [name, pParam] : m_params)
+            {
+                if (parameters_with_params.find(name) == parameters_with_params.end()
+                    && pParam->takes_parameters() && pParam->has_default_value())
+                {
+                    std::string real_name = pParam->parameter_prefix(pParam->default_to_string());
+                    parameters_with_params[mxb::lower_case_copy(real_name)] = pParam;
+                }
+            }
+
             for (const auto& kv : parameters_with_params)
             {
                 const auto& my_params = nested_parameters[kv.first];

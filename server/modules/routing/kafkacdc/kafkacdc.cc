@@ -53,9 +53,9 @@ cfg::ParamBool s_enable_idempotence(
     &s_spec, "enable_idempotence", "Enables idempotent Kafka producer",
     false, cfg::Param::AT_RUNTIME);
 
-cfg::ParamCount s_timeout(
+cfg::ParamSeconds s_timeout(
     &s_spec, "timeout", "Connection and read timeout for replication",
-    10, cfg::Param::AT_RUNTIME);
+    10s, cfg::Param::AT_RUNTIME);
 
 cfg::ParamString s_gtid(
     &s_spec, "gtid", "The GTID position to start from",
@@ -364,6 +364,7 @@ private:
     KafkaEventHandler(SProducer producer, const KafkaCDC::Config& config)
         : m_config(config)
         , m_producer(std::move(producer))
+        , m_timeout(std::chrono::duration_cast<std::chrono::milliseconds>(config.timeout).count())
     {
     }
 
@@ -503,7 +504,7 @@ std::unique_ptr<cdc::Replicator> KafkaCDC::create_replicator(const Config& confi
         cdc::Config cnf;
         cnf.service = service;
         cnf.statedir = std::string(mxs::datadir()) + "/" + service->name();
-        cnf.timeout = config.timeout;
+        cnf.timeout = config.timeout.count();
         cnf.gtid = config.gtid;
         cnf.server_id = config.server_id;
         cnf.cooperate = config.cooperative_replication;
