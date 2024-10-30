@@ -20,6 +20,13 @@ password=skysql
 [RW-Split-Listener]
 type=listener
 service=RW-Split-Router
-protocol=mariadbprotocol
+#
+# MXS-5378: Nested listener parameters depend on protocol being defined
+#
+# The default value of protocol in listeners is mariadbprotocol and defining
+# nested parameters for it should work without the protocol parameter.
+#
+#protocol=mariadbprotocol
+#
 port=4006
 mariadbprotocol.allow_replication=false
