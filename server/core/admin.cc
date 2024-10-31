@@ -23,6 +23,7 @@
 #include <unordered_map>
 
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <gnutls/abstract.h>
 
@@ -506,7 +507,7 @@ bool is_auth_endpoint(const HttpRequest& request)
     return request.uri_part_count() == 1 && request.uri_segment(0, 1) == "auth";
 }
 
-std::vector<std::string> audit_log_columns {"Timestamp", "Duration", "User",
+std::vector<std::string> audit_log_columns {"Timestamp", "Duration", "User", "IP",
                                             "Host", "URI", "Method",
                                             "Status", "Response code", "Body"};
 
@@ -816,6 +817,28 @@ bool Client::serve_file(const std::string& url)
     return rval;
 }
 
+std::string Client::address() const
+{
+    char ip[INET6_ADDRSTRLEN] = "";
+    auto* info = MHD_get_connection_info(m_connection, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+
+    if (info)
+    {
+        if (info->client_addr->sa_family == AF_INET)
+        {
+            auto* addr = (sockaddr_in*)info->client_addr;
+            inet_ntop(AF_INET, &addr->sin_addr, ip, sizeof(ip));
+        }
+        else if (info->client_addr->sa_family == AF_INET6)
+        {
+            auto* addr = (sockaddr_in6*)info->client_addr;
+            inet_ntop(AF_INET6, &addr->sin6_addr, ip, sizeof(ip));
+        }
+    }
+
+    return ip;
+}
+
 void Client::set_http_response_code(uint code)
 {
     m_http_response_code = code;
@@ -853,6 +876,7 @@ void Client::log_to_audit()
         wall_time::to_string(wall_time::Clock::now()),
         maxbase::to_string(m_end_time - m_start_time),
         m_user,
+        address(),
         m_request.host(),
         m_request.get_uri(),
         m_request.get_verb(),
