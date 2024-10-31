@@ -70,6 +70,7 @@ void read_messages(TestConnections& test, Consumer& consumer, int n_expected, in
 }
 
 void test_read_gtid_from_kafka(TestConnections& test,
+                               Consumer& consumer,
                                const std::string& first_gtid,
                                const std::string& gtid_end)
 {
@@ -79,8 +80,6 @@ void test_read_gtid_from_kafka(TestConnections& test,
     test.maxscale->ssh_output("rm /var/lib/maxscale/Kafka-CDC/current_gtid.txt");
     test.maxscale->ssh_output("sed -i -e \"$ a read_gtid_from_kafka=false\" /etc/maxscale.cnf", true);
     test.maxscale->start();
-
-    Consumer consumer(test, "kafkacdc");
 
     sleep(5);
     read_messages(test, consumer, 12, get_sequence(first_gtid), get_sequence(gtid_end));
@@ -165,7 +164,7 @@ int main(int argc, char** argv)
                 "Expected data to be 12: %s", js.to_string().c_str());
     test.maxscale->ssh_output("sed -i -e \"/match=/ d\" -e \"/exclude=/ d\" /etc/maxscale.cnf", true);
 
-    test_read_gtid_from_kafka(test, first_gtid, gtid_end);
+    test_read_gtid_from_kafka(test, consumer, first_gtid, gtid_end);
 
     conn.query("DROP TABLE bob");
     conn.query("DROP TABLE bobcat");
