@@ -137,8 +137,18 @@ void FileWriter::add_event(maxsql::RplEvent& rpl_event)     // FIXME, move into 
 
                 if (m_in_transaction)
                 {
-                    const char* ptr = rpl_event.pBuffer();
-                    m_tx_buffer.insert(m_tx_buffer.end(), ptr, ptr + rpl_event.buffer_size());
+                    if (m_encrypt)
+                    {
+                        std::vector<char> plaintext(rpl_event.pBuffer(), rpl_event.pEnd());
+                        uint32_t pos = m_current_pos.write_pos + m_tx_buffer.size();
+                        auto encrypted = m_encrypt->encrypt_event(std::move(plaintext), pos);
+                        m_tx_buffer.insert(m_tx_buffer.end(), encrypted.begin(), encrypted.end());
+                    }
+                    else
+                    {
+                        const char* ptr = rpl_event.pBuffer();
+                        m_tx_buffer.insert(m_tx_buffer.end(), ptr, ptr + rpl_event.buffer_size());
+                    }
                 }
                 else if (etype == GTID_LIST_EVENT)
                 {
