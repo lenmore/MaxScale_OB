@@ -889,11 +889,12 @@ primary.
 Enable automatic primary failover. When automatic failover is enabled, MaxScale
 will elect a new primary server for the cluster if the old primary goes down. A
 server is assumed *Down* if it cannot be connected to, even if this is caused by
-incorrect credentials. The failover is triggered if the primary stays down for
+incorrect credentials. Failover triggers if the primary stays down for
 [failcount](#failcount) monitor intervals. Failover will not take place if
 MaxScale is set [passive](../Getting-Started/Configuration-Guide.md#passive).
 
-The monitor user must have the SUPER and RELOAD privileges for failover to work.
+As failover alters replication, it requires more privileges than normal
+monitoring. See [here](#cluster-manipulation-grants) for a list of grants.
 
 Failover is designed to be used with simple primary-replica topologies. More
 complicated topologies, such as multilayered or circular replication, are not
