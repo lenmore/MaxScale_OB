@@ -811,13 +811,14 @@ master.
 - **Default**: `false`
 
 Enable automatic master failover. When automatic failover is enabled, MaxScale
-will elect a new master server for the cluster if the old master goes down.  A
+will elect a new master server for the cluster if the old master goes down. A
 server is assumed *Down* if it cannot be connected to, even if this is caused by
-incorrect credentials.  The failover is triggered if the master stays down for
-[failcount](#failcount) monitor intervals.  Failover will not take place if
+incorrect credentials. Failover triggers if the master stays down for
+[failcount](#failcount) monitor intervals. Failover will not take place if
 MaxScale is set [passive](../Getting-Started/Configuration-Guide.md#passive).
 
-The monitor user must have the SUPER and RELOAD privileges for failover to work.
+As failover alters replication, it requires more privileges than normal
+monitoring. See [here](#cluster-manipulation-grants) for a list of grants.
 
 Failover is designed to be used with simple master-slave topologies. More
 complicated topologies, such as multilayered or circular replication, are not
@@ -834,7 +835,7 @@ setups.
 Enable automatic joining of servers to the cluster. When enabled, MaxScale will
 attempt to direct servers to replicate from the current cluster master if they
 are not currently doing so. Replication will be started on any standalone
-servers.  Servers that are replicating from another server will be redirected.
+servers. Servers that are replicating from another server will be redirected.
 This effectively enforces a 1-master-N-slaves topology. The current master
 itself is not redirected, so it can continue to replicate from an external
 master. Rejoin is also not performed on any server that is replicating from
@@ -842,7 +843,7 @@ multiple sources, as this indicates a complicated topology (this rule is
 overridden by [enforce_simple_topology](#enforce_simple_topology)).
 
 This feature is often paired with [auto_failover](#auto_failover) to redirect
-the former master when it comes back online.  Sometimes this kind of rejoin will
+the former master when it comes back online. Sometimes this kind of rejoin will
 fail as the old master may have transactions that were never replicated to the
 current one. See [limitations](#limitations-and-requirements) for more
 information.
