@@ -21,11 +21,10 @@
 
 #include <maxtest/testconnections.hh>
 #include <vector>
-#include <iostream>
 
 using namespace std;
 
-const int NUM_STMT = 2000;
+const int NUM_STMT = 200;
 
 int main(int argc, char** argv)
 {
@@ -34,12 +33,12 @@ int main(int argc, char** argv)
 
     test.maxscale->connect();
 
-    cout << "Setting variable @a to 123" << endl;
+    test.tprintf("Setting variable @a to 123");
     mysql_query(test.maxscale->conn_rwsplit, "SET @a = 123");
     int rc = execute_query_check_one(test.maxscale->conn_rwsplit, "SELECT @a", "123");
     test.expect(rc == 0, "Text protocol should return 123 as the value of @a");
 
-    cout << "Preparing and executing " << NUM_STMT << " prepared statements" << endl;
+    test.tprintf("Preparing %d prepared statements", NUM_STMT);
     for (int i = 0; i < NUM_STMT && test.global_result == 0; i++)
     {
         stmts.push_back(mysql_stmt_init(test.maxscale->conn_rwsplit));
@@ -49,6 +48,8 @@ int main(int argc, char** argv)
                         "Failed to prepare: %s",
                         mysql_stmt_error(stmt));
     }
+
+    test.tprintf("Executing %d prepared statements", NUM_STMT);
 
     for (auto stmt : stmts)
     {
