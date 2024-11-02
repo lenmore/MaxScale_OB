@@ -16,6 +16,7 @@ router=readwritesplit
 cluster=MariaDB-Monitor
 user=maxskysql
 password=skysql
+use_sql_variables_in=master
 
 [RW-Split-Listener]
 type=listener
