@@ -115,7 +115,7 @@ function genDdlEditorData({ parsedTable, lookupTables = [], charsetCollationMap 
 
     const charset = parsedTable.options.charset
     const collation =
-        typy(parsedTable, 'options.collation').safeString ||
+        typy(parsedTable, 'options.collate').safeString ||
         typy(charsetCollationMap, `[${charset}].defCollation`).safeString
 
     return {
