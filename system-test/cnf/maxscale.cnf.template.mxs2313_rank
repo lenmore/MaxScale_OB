@@ -26,13 +26,9 @@ address=###node_server_IP_4###
 port=###node_server_port_4###
 protocol=MySQLBackend
 
-[MySQL-Monitor]
-type=monitor
-module=mysqlmon
-servers=server1,server2,server3,server4
-user=maxskysql
-password=skysql
-monitor_interval=1000ms
+#
+# The server states are set in the test via `maxctrl set server`
+#
 
 [Hint]
 type=filter
