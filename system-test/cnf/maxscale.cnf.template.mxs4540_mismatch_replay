@@ -18,8 +18,7 @@ router=readwritesplit
 cluster=MariaDB-Monitor
 user=maxskysql
 password=skysql
-delayed_retry_timeout=10s
-transaction_replay_attempts=3
+transaction_replay_timeout=5s
 transaction_replay=true
 transaction_replay_retry_on_mismatch=true
 
