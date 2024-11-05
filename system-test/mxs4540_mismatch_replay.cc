@@ -16,16 +16,18 @@
 
 void test_main(TestConnections& test)
 {
+    auto* admin = test.repl->backend(0)->admin_connection();
+    auto user = admin->create_user("bob", "%", "bob");
+    user.grant("ALL ON *.*");
     auto c = test.maxscale->rwsplit();
+    c.set_credentials("bob", "bob");
 
     if (test.expect(c.connect()
                     && c.query("START TRANSACTION")
                     && c.query("SELECT UUID()"),
                     "Failed to start transaction: %s", c.error()))
     {
-        test.repl->block_node(0);
-        test.maxscale->sleep_and_wait_for_monitor(2, 2);
-        test.repl->unblock_node(0);
+        admin->cmd("KILL USER bob");
 
         // The replay limit should eventually cause the replay to fail
         test.expect(!c.query("COMMIT"), "The transaction should fail to commit after replay");
