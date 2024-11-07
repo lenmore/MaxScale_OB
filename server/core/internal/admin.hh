@@ -119,6 +119,13 @@ private:
      */
     bool serve_file(const std::string& url);
 
+    /**
+     * Get the client IP address
+     *
+     * @return The client IP address as a string
+     */
+    std::string address() const;
+
     MHD_Connection*        m_connection;/**< Connection handle */
     std::string            m_data;      /**< Uploaded data */
     state                  m_state;     /**< Client state */
