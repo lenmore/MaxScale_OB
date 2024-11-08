@@ -77,9 +77,8 @@
   binary protocol statements as text. This makes it so that for all execution of
   SQL, the `query` value in `log_data` will produce output.
 
-* The `auth_all_servers` parameter has been deprecated as it is now
-  obsolete: the functionality that it enabled is automatically enabled
-  by the schemarouter whenever it is used.
+* The functionality that the `auth_all_servers` parameter enabled is
+  automatically enabled by the schemarouter whenever it is used.
 
 For more details, please refer to:
 

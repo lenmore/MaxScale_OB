@@ -2353,16 +2353,16 @@ MaxScale.
 - **Dynamic**: Yes
 - **Default**: `false`
 
-**Note:** This parameter has been deprecated in MaxScale 24.02. Modules that
-  require this to function correctly (e.g. schemarouter) now automatically
-  enable it.
-
 This parameter controls whether only a single server or all of the servers are
 used when loading the users from the backend servers.
 
 By default MaxScale uses the first server labeled as `Master` as the source of
 the authentication data. When this option is enabled, the authentication data is
 loaded from all the servers and combined into one big data set.
+
+**Note:** This parameter was deprecated in MaxScale 24.02.0 but it was then
+  un-deprecated as there were still uses for it. Modules that required this to
+  function correctly (e.g. schemarouter) now automatically enable it.
 
 ### `strip_db_esc`
 
