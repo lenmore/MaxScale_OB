@@ -536,6 +536,14 @@ static const char* BUILTIN_FUNCTIONS[] =
     "percent_rank",
     "rank",
     "row_number",
+
+    //
+    // Vector functions: https://mariadb.com/kb/en/vector-functions/
+    //
+    "vec_distance_cosine",
+    "vec_distance_euclidean",
+    "vec_fromtext",
+    "vec_totext",
 };
 
 const size_t N_BUILTIN_FUNCTIONS = sizeof(BUILTIN_FUNCTIONS) / sizeof(BUILTIN_FUNCTIONS[0]);
