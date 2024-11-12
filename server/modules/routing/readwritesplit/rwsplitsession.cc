@@ -950,14 +950,18 @@ bool RWSplitSession::handleError(mxs::ErrorType type, const std::string& message
     RWBackend* backend = static_cast<RWBackend*>(endpoint->get_userdata());
     mxb_assert(backend && backend->in_use());
     std::string errmsg;
+    bool is_expected = backend->is_expected_response();
 
-    if (backend->is_expected_response()
-        && ((reply.has_started() && !m_config->transaction_replay) || route_info().multi_part_packet()))
+    if (is_expected && route_info().multi_part_packet())
     {
-        errmsg = mxb::string_printf(
-            "Server '%s' was lost in the middle of a %s, cannot continue the session: %s",
-            backend->name(), reply.has_started() ? "resultset" : "large multi-packet query",
-            message.c_str());
+        errmsg = mxb::string_printf("Server '%s' was lost in the middle of a large multi-packet query,"
+                                    " cannot continue the session: %s", backend->name(), message.c_str());
+        return mxs::RouterSession::handleError(type, errmsg, endpoint, reply);
+    }
+    else if (is_expected && reply.has_started() && (!m_config->transaction_replay || !trx_is_open()))
+    {
+        errmsg = mxb::string_printf("Server '%s' was lost in the middle of a resultset,"
+                                    " cannot continue the session: %s", backend->name(), message.c_str());
         return mxs::RouterSession::handleError(type, errmsg, endpoint, reply);
     }
     else if (m_pSession->killed_by_query())
