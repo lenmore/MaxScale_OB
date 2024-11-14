@@ -503,6 +503,10 @@ void RWSplitSession::handle_ignorable_error(RWBackend* backend, const mxs::Reply
         {
             throw RWSException("Cannot retry the query as multiple queries were in progress, closing session.");
         }
+        else if (!m_current_query)
+        {
+            throw RWSException("Cannot retry, reply has been partially delivered to the client.");
+        }
         else if (backend == m_current_master)
         {
             if (!can_retry_query())
@@ -949,13 +953,17 @@ void RWSplitSession::handle_error(mxs::ErrorType type, const std::string& messag
     mxb_assert(backend && backend->in_use());
 
     MXB_INFO("Server '%s' failed: %s", backend->name(), message.c_str());
+    bool is_expected = backend->is_expected_response();
 
-    if (backend->is_expected_response()
-        && ((reply.has_started() && !m_config->transaction_replay) || route_info().multi_part_packet()))
+    if (is_expected && route_info().multi_part_packet())
     {
         throw RWSException("Server '", backend->name(), "' was lost in the middle of a ",
-                           reply.has_started() ? "resultset" : "large multi-packet query",
-                           ", closing session: ", message);
+                           "large multi-packet query, closing session: ", message);
+    }
+    else if (is_expected && reply.has_started() && (!m_config->transaction_replay || !trx_is_open()))
+    {
+        throw RWSException("Server '", backend->name(), "' was lost in the middle of a ",
+                           "resultset, closing session: ", message);
     }
     else if (m_pSession->killed_by_query())
     {

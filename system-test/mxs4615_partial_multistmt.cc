@@ -17,7 +17,7 @@
  */
 #include <maxtest/testconnections.hh>
 
-void test_main(TestConnections& test)
+void test_mxs4615(TestConnections& test)
 {
     auto c = test.maxscale->rwsplit();
     test.expect(c.connect(), "Failed to connect: %s", c.error());
@@ -36,6 +36,38 @@ void test_main(TestConnections& test)
     test.maxscale->wait_for_monitor(2);
 
     thr.join();
+}
+
+void test_mxs5387(TestConnections& test)
+{
+    test.check_maxctrl("create filter Hint hintfilter");
+    test.check_maxctrl("alter service-filters RW-Split-Router Hint");
+
+    auto c = test.maxscale->rwsplit();
+    MXT_EXPECT(c.connect());
+    MXT_EXPECT(c.query(
+        R"(
+CREATE OR REPLACE PROCEDURE interrupted_call()
+BEGIN
+  SELECT 1;
+  SELECT SLEEP(1);
+  SIGNAL SQLSTATE '08S01' SET MYSQL_ERRNO=1047, MESSAGE_TEXT='WSREP has not yet prepared node for application use';
+END
+)"));
+
+    test.repl->sync_slaves();
+
+    c.query("CALL interrupted_call()");
+    c.query("CALL interrupted_call() -- maxscale route to slave");
+
+    MXT_EXPECT(c.query("DROP PROCEDURE interrupted_call"));
+    test.check_maxctrl("destroy filter --force Hint");
+}
+
+void test_main(TestConnections& test)
+{
+    test_mxs4615(test);
+    test_mxs5387(test);
 }
 
 int main(int argc, char** argv)

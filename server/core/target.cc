@@ -295,6 +295,14 @@ std::string Reply::describe() const
                 rval += ", last insert ID ";
                 rval += std::to_string(id);
             }
+
+            auto it = m_variables.find("last_gtid");
+
+            if (it != m_variables.end())
+            {
+                rval += ", GTID ";
+                rval += it->second;
+            }
         }
         else if (is_resultset())
         {
