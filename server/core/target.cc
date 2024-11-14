@@ -290,6 +290,13 @@ std::string Reply::describe() const
             {
                 ss << ", last insert ID " << id;
             }
+
+            auto it = m_variables.find("last_gtid");
+
+            if (it != m_variables.end())
+            {
+                ss << ", GTID " << it->second;
+            }
         }
         else if (is_resultset())
         {
