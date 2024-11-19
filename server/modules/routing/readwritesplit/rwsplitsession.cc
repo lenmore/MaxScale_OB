@@ -511,6 +511,10 @@ bool RWSplitSession::handle_ignorable_error(RWBackend* backend, const mxs::Error
         {
             MXB_INFO("Cannot retry the query as multiple queries were in progress");
         }
+        else if (m_current_query.empty())
+        {
+            MXB_INFO("Cannot retry, reply has been partially delivered to the client.");
+        }
         else if (backend == m_current_master)
         {
             if (can_retry_query() && can_recover_master())
