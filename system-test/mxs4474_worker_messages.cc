@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     {
         auto c = test.maxscale->rwsplit();
 
-        if (c.connect() && c.query("SELECT 1"))
+        if (c.connect() && c.query("SELECT @@last_insert_id"))
         {
             connections.push_back(std::move(c));
         }
@@ -45,17 +45,20 @@ int main(int argc, char** argv)
 
     for (auto& c : connections)
     {
-        test.expect(c.send_query("USE test"), "Sending USE should work: %s", c.error());
+        test.expect(c.send_query("USE test"),
+                    "[%u] Sending USE should work: %s", c.thread_id(), c.error());
     }
 
     for (auto& c : connections)
     {
-        test.expect(c.read_query_result(), "Reading USE result should work: %s", c.error());
+        test.expect(c.read_query_result(),
+                    "[%u] Reading USE result should work: %s", c.thread_id(), c.error());
     }
 
     for (auto& c : connections)
     {
-        test.expect(c.send_query("KILL " + std::to_string(id)), "Sending KILL should work: %s", c.error());
+        test.expect(c.send_query("KILL " + std::to_string(id)),
+                    "[%u] Sending KILL should work: %s", c.thread_id(), c.error());
     }
 
     for (auto& c : connections)
