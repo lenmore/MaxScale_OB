@@ -16,7 +16,7 @@ then
     export DEBIAN_FRONTEND=noninteractive
     apt_cmd="sudo -E apt-get -q -o Dpkg::Options::=--force-confold \
        -o Dpkg::Options::=--force-confdef -y"
-    ${apt_cmd} install curl oathtool php-cli php-mysql openjdk-8-jdk maven
+    ${apt_cmd} install curl oathtool php-cli php-mysql openjdk-17-jdk krb5-user maven
     install_mariadb_repo
     ${apt_cmd} install mariadb-test
 elif command -v dnf
@@ -29,7 +29,7 @@ then
     sudo dnf install -y epel-release
 
     # The --allowerasing is needed on systems where curl-minimal is installed instead of curl.
-    sudo dnf install -y --allowerasing curl php-cli php-mysqlnd oathtool java-1.8.0-openjdk maven
+    sudo dnf install -y --allowerasing curl php-cli php-mysqlnd oathtool java-17-openjdk krb5-workstation maven
     install_mariadb_repo
     sudo dnf install -y MariaDB-test
 else
