@@ -72,6 +72,7 @@ static inline int run_npm_test(TestConnections& test, int argc, char** argv,
     auto npm_test_main = [&repo, &branch, &repo_dir](TestConnections& test){
         if (clone_repo(test, repo, branch, repo_dir))
         {
+            test.repl->execute_query_all_nodes("SET GLOBAL max_allowed_packet=1024*1024*1024");
             auto user = create_user(test);
             std::ostringstream ss;
             ss << "cd " << repo_dir << " && npm i &&"
@@ -85,6 +86,7 @@ static inline int run_npm_test(TestConnections& test, int argc, char** argv,
                << " npm run test:base";
 
             test.run_shell_command(ss.str(), "Running test suite");
+            test.repl->execute_query_all_nodes("SET GLOBAL max_allowed_packet=DEFAULT");
         }
     };
 
