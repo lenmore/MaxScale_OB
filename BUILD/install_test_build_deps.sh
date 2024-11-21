@@ -18,7 +18,7 @@ then
        -o Dpkg::Options::=--force-confdef -y"
     ${apt_cmd} install curl oathtool php-cli php-mysql openjdk-17-jdk krb5-user
     install_mariadb_repo
-    ${apt_cmd} install mariadb-test
+    ${apt_cmd} install mariadb-test mariadb-plugin-gssapi-client
 elif command -v dnf
 then
     # RHEL, Rocky Linux or Alma Linux
@@ -31,7 +31,7 @@ then
     # The --allowerasing is needed on systems where curl-minimal is installed instead of curl.
     sudo dnf install -y --allowerasing curl php-cli php-mysqlnd oathtool java-17-openjdk krb5-workstation
     install_mariadb_repo
-    sudo dnf install -y MariaDB-test
+    sudo dnf install -y MariaDB-test MariaDB-client
 else
     # This is something we don't support running tests on (e.g. SLES)
     echo "ERROR: Cannot run system tests on this OS."
