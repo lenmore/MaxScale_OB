@@ -2,11 +2,6 @@
 add_executable(canonizer canonizer.cc)
 target_link_libraries(canonizer maxscale-common)
 
-# For debug builds on aarch64 with ASAN, some tests are very slow unless optimizations are enabled.
-if (WITH_ASAN AND CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-  target_compile_options(canonizer PRIVATE -O2)
-endif()
-
 add_test(NAME test_canonical COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/canontest.sh
   ${CMAKE_CURRENT_BINARY_DIR}/test.log
   ${CMAKE_CURRENT_SOURCE_DIR}/input.sql
