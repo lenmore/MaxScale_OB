@@ -21,6 +21,17 @@
 
 #include <maxsimd/canonical.hh>
 
+#ifdef __aarch64__
+extern "C" const char* __asan_default_options()
+{
+    // For some reason this is extremely slow on a few Ubuntu distributions on aarch64
+    // if ASAN is detecting stack-use-after-return. This is potentially one of these bugs:
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91101
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94910
+    return "detect_stack_use_after_return=false";
+}
+#endif
+
 using std::cout;
 using std::endl;
 
