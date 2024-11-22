@@ -83,9 +83,3 @@ add_test(test_compression test_compression)
 add_executable(test_collector test_collector.cc)
 target_link_libraries(test_collector maxbase)
 add_test(test_collector test_collector)
-
-# For debug builds on aarch64 with ASAN, some tests are very slow unless optimizations are enabled.
-if (WITH_ASAN AND CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-  target_compile_options(test_mxb_string PRIVATE -O2)
-  target_compile_options(test_window PRIVATE -O2)
-endif()

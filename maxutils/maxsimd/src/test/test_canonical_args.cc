@@ -18,6 +18,13 @@
 #include <maxbase/string.hh>
 #include <maxsimd/canonical.hh>
 
+#ifdef __aarch64__
+extern "C" const char* __asan_default_options()
+{
+    return "detect_stack_use_after_return=false";
+}
+#endif
+
 struct TestCase
 {
     std::string              sql;

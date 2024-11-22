@@ -23,6 +23,13 @@
 #include <maxbase/window.hh>
 #include <maxbase/string.hh>
 
+#ifdef __aarch64__
+extern "C" const char* __asan_default_options()
+{
+    return "detect_stack_use_after_return=false";
+}
+#endif
+
 const char* dump(const std::vector<int64_t>& v, const std::deque<int64_t>& d)
 {
     static std::string errmsg;
