@@ -296,7 +296,7 @@ bool mxb_log_should_log(int priority);
 
 #define MXB_STREAM_LOG_HELPER(CMXBLOGLEVEL__, mxb_msg_str__) \
     do { \
-        if (!mxb_log_is_priority_enabled(CMXBLOGLEVEL__)) \
+        if (!mxb_log_should_log(CMXBLOGLEVEL__)) \
         { \
             break; \
         } \
