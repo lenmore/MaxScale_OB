@@ -19,7 +19,6 @@ report on [our Jira](https://jira.mariadb.org/projects/MXS).
 
 ## Bug fixes
 
-* [MXS-5398](https://jira.mariadb.org/browse/MXS-5398) Some log messages are not logged when session_trace is used
 * [MXS-5394](https://jira.mariadb.org/browse/MXS-5394) Empty passwords are shown as non-empty if password encryption is enabled
 * [MXS-5387](https://jira.mariadb.org/browse/MXS-5387) Crash in MariaDBParser::Helper::get_query_info()
 * [MXS-5378](https://jira.mariadb.org/browse/MXS-5378) Nested listener parameters depend on protocol being defined
