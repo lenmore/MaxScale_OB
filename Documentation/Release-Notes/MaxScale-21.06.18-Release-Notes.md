@@ -54,6 +54,11 @@ report on [our Jira](https://jira.mariadb.org/projects/MXS).
 
 ## Known Issues and Limitations
 
+In the previous version of MaxScale, maxctrl was implemented as a JavaScript
+script that was run using the node interpreter on the platform. That introduced
+a dependency on node that earlier was not present. In this version of MaxScale,
+maxctrl is again a native executable without that dependency.
+
 There are some limitations and known issues within this version of MaxScale.
 For more information, please refer to the [Limitations](../About/Limitations.md) document.
 
