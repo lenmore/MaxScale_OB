@@ -970,6 +970,12 @@ void TestConnections::init_maxscale(int m)
                 mxs->copy_to_node(mxs_cert, mxs->cert_path());
                 mxs->copy_to_node(mxs_key, mxs->cert_key_path());
                 mxs->copy_to_node(ca_cert, mxs->ca_cert_path());
+
+                string wrong_host_cert = mxb::string_printf("%s/ssl-cert/mxs-wrong-host.crt",
+                                                            mxt::SOURCE_DIR);
+                string wrong_host_cert_dst = mxb::string_printf("%s/certs/mxs.crt", mxs->access_homedir());
+                mxs->copy_to_node(wrong_host_cert, wrong_host_cert_dst);
+
                 mxs->ssh_node_f(true, "chmod -R a+rx %s;", mxs->access_homedir());
             }
             else
