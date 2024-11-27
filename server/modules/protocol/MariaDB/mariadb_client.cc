@@ -1569,6 +1569,9 @@ MariaDBClientConnection::StateMachineRes MariaDBClientConnection::process_normal
         {
             // A continuation of a recoded command, append it to the current command and route it forward
             m_pending_cmd.append(gwbuf_clone(buffer.get()));
+            // A call to update_route_info() must be done for every packet of the query,
+            // even ones that span multiple packets.
+            m_qc.update_route_info(mariadb::QueryClassifier::CURRENT_TARGET_UNDEFINED, buffer.get());
             bool is_large = large_query_continues(buffer);
             routed = m_downstream->routeQuery(buffer.release()) != 0;
 
