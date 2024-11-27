@@ -1673,7 +1673,7 @@ bool RebuildServer::serve_backup()
 {
     auto& cs = m_source->conn_settings();
     // Start serving the backup stream. The source will wait for a new connection.
-    const char stream_fmt[] = "sudo mariabackup --user=%s --password=%s --backup --safe-slave-backup "
+    const char stream_fmt[] = "sudo mariabackup --user='%s' --password='%s' --backup --safe-slave-backup "
                               "--target-dir=/tmp --stream=xbstream --parallel=%i "
                               "| pigz -c | socat - TCP-LISTEN:%i,reuseaddr";
     string stream_cmd = mxb::string_printf(stream_fmt, cs.username.c_str(), cs.password.c_str(), 1,
