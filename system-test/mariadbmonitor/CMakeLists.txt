@@ -130,6 +130,7 @@ add_test_executable_ex(NAME mysqlmon_fail_switch_multi SOURCE mysqlmon_fail_swit
 add_test_executable_ex(NAME mariadbmon_master_slave_conditions SOURCE master_slave_conditions.cc
         CONFIG master_slave_conditions.cnf VMS repl_backend LABELS mysqlmon)
 
+# MXS-5366 Rebuild with special chars in username/pw.
 add_test_executable_ex(NAME mariadbmon_rebuild_server SOURCE mariadbmon_rebuild_server.cc
         CONFIG mariadbmon_rebuild_server.cnf VMS repl_backend LABELS mysqlmon)
 
