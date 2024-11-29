@@ -76,8 +76,14 @@ const string db_grants_query =
     // and combine with procedure-level privs as db-level privs.
     "(SELECT a.user, a.host, a.db FROM mysql.procs_priv AS a) ) AS c;";
 
+// oceanbase not exists table tables_priv and proxies_priv
+const string db_grants_query_ob = "SELECT DISTINCT c.user, c.host, c.db FROM mysql.columns_priv AS c";
+
 const string proxies_query = "SELECT DISTINCT a.user, a.host FROM mysql.proxies_priv AS a "
                              "WHERE a.proxied_host <> '' AND a.proxied_user <> '';";
+
+const string proxies_query_ob = "SELECT DISTINCT a.user, a.host FROM mysql.columns_priv AS a ";
+
 const string db_names_query = "SHOW DATABASES;";
 const string roles_query = "SELECT a.user, a.host, a.role FROM mysql.roles_mapping AS a;";
 const string my_grants_query = "SHOW GRANTS;";
@@ -328,12 +334,16 @@ MariaDBUserManager::load_users_mariadb(mxq::MariaDB& con, SERVER* srv, UserDatab
     // diagnostics prints it.
     auto& info = srv->info();
     bool role_support = (info.version_num().total >= 100005);
+    bool is_oceanbase = (info.version.find("OceanBase") != std::string::npos);
+
+    auto db_grants_query = is_oceanbase ? mariadb_queries::db_grants_query_ob : mariadb_queries::db_grants_query;
+    auto proxies_query = is_oceanbase ? mariadb_queries::proxies_query_ob : mariadb_queries::proxies_query;
 
     // Run the queries as one multiquery.
     vector<string> multiquery;
     multiquery.reserve(6);
     multiquery = {mariadb_queries::users_query,     mariadb_queries::db_wc_grants_query,
-                  mariadb_queries::db_grants_query, mariadb_queries::proxies_query,
+                  db_grants_query, proxies_query,
                   mariadb_queries::db_names_query};
     if (role_support)
     {
@@ -353,7 +363,7 @@ MariaDBUserManager::load_users_mariadb(mxq::MariaDB& con, SERVER* srv, UserDatab
                                    "the 'mysql.procs_priv'-table.";
             MXB_WARNING(msg_fmt, svc_name());
 
-            multiquery[2] = mariadb_queries::db_grants_query_old;
+            multiquery[2] = is_oceanbase ? mariadb_queries::db_grants_query_ob : mariadb_queries::db_grants_query_old;
             multiq_result = con.multiquery(multiquery);
         }
     }
@@ -465,6 +475,11 @@ bool MariaDBUserManager::read_users_mariadb(QResult users, const SERVER::Version
             new_entry.ssl = !users->get_string(ind_ssl).empty();
 
             new_entry.plugin = mxb::tolower(users->get_string(ind_plugin));
+            if ("ob_native_password" == new_entry.plugin )
+            {
+                new_entry.plugin = "mysql_native_password";
+            }
+            
             new_entry.password = have_pw_column ? users->get_string(ind_pw) : users->get_string(ind_auth_str);
 
             // Hex-form passwords have a '*' at the beginning, remove it.
