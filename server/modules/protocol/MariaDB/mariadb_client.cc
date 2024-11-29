@@ -1580,6 +1580,7 @@ MariaDBClientConnection::StateMachineRes MariaDBClientConnection::process_normal
         {
             // A continuation of a recoded command, append it to the current command and route it forward
             bool is_large = large_query_continues(buffer);
+            m_qc.update_route_info(mariadb::QueryClassifier::CURRENT_TARGET_UNDEFINED, &buffer);
             m_pending_cmd.append(buffer);
             routed = m_downstream->routeQuery(mxs::gwbuf_to_gwbufptr(move(buffer))) != 0;
 
