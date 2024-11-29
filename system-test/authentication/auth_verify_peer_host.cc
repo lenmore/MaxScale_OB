@@ -93,8 +93,9 @@ void test_main(TestConnections& test)
         change_certificate(repl.backend(2));
         change_certificate(repl.backend(3));
         mxs.wait_for_monitor();
-        test.tprintf("Monitor can still connect.");
-        mxs.check_print_servers_status(mxt::ServersInfo::default_repl_states());
+        test.tprintf("Monitor should not connect to servers 3 & 4.");
+        mxs.check_print_servers_status({mxt::ServerInfo::master_st, mxt::ServerInfo::slave_st,
+                                        mxt::ServerInfo::DOWN, mxt::ServerInfo::DOWN});
 
         conn = mxs.open_rwsplit_connection2_nodb();
         sessions = get_sessions();
@@ -111,6 +112,7 @@ void test_main(TestConnections& test)
         restore_certificate(repl.backend(2));
         restore_certificate(repl.backend(3));
         mxs.wait_for_monitor();
+        mxs.check_print_servers_status(mxt::ServersInfo::default_repl_states());
     }
 }
 

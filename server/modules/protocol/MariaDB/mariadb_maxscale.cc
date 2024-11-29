@@ -39,32 +39,7 @@ MYSQL* mxs_mysql_real_connect(MYSQL* con, const char* address, int port,
 {
     if (ssl.enabled)
     {
-        char enforce_tls = 1;
-        mysql_optionsv(con, MYSQL_OPT_SSL_ENFORCE, (void*)&enforce_tls);
-
-        // If an option is empty, a null-pointer should be given to mysql_ssl_set.
-        const char* ssl_key = ssl.key.empty() ? nullptr : ssl.key.c_str();
-        const char* ssl_cert = ssl.cert.empty() ? nullptr : ssl.cert.c_str();
-        const char* ssl_ca = ssl.ca.empty() ? nullptr : ssl.ca.c_str();
-        mysql_ssl_set(con, ssl_key, ssl_cert, ssl_ca, NULL, NULL);
-
-        switch (ssl.version)
-        {
-        case mxb::ssl_version::TLS11:
-            mysql_optionsv(con, MARIADB_OPT_TLS_VERSION, "TLSv1.1,TLSv1.2,TLSv1.3");
-            break;
-
-        case mxb::ssl_version::TLS12:
-            mysql_optionsv(con, MARIADB_OPT_TLS_VERSION, "TLSv1.2,TLSv1.3");
-            break;
-
-        case mxb::ssl_version::TLS13:
-            mysql_optionsv(con, MARIADB_OPT_TLS_VERSION, "TLSv1.3");
-            break;
-
-        default:
-            break;
-        }
+        mxq::set_ssl_config(con, ssl);
     }
 
     const auto& local_address = mxs::Config::get().local_address;
