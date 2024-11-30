@@ -937,8 +937,14 @@ void MariaDBCluster::reset_server_settings(int node)
     ssh_node_f(node, false, "mkdir  -p %s", cert_temp_dst.c_str());
 
     string cert_temp_dst_dir = cert_temp_dst + "/";
-    string ssl_cert_src = ssl_src_dir + "server.crt";
-    copy_to_node(node, ssl_cert_src.c_str(), cert_temp_dst_dir.c_str());
+    // Each server has a different certificate file. Copy the correct file, but name it "server.crt" at the
+    // destination so that the same ssl config works for all servers. Also, copy the certificate with the
+    // wrong hostname & IP.
+    string ssl_cert_src = mxb::string_printf("%sserver%i.crt", ssl_src_dir.c_str(), node + 1);
+    string ssl_cert_dst = mxb::string_printf("%sserver.crt", cert_temp_dst_dir.c_str());
+    copy_to_node(node, ssl_cert_src.c_str(), ssl_cert_dst.c_str());
+    string ssl_wrong_cert_src = mxb::string_printf("%sserver-wrong-host.crt", ssl_src_dir.c_str());
+    copy_to_node(node, ssl_wrong_cert_src.c_str(), cert_temp_dst_dir.c_str());
 
     string ssl_key_src = ssl_src_dir + "server.key";
     copy_to_node(node, ssl_key_src.c_str(), cert_temp_dst_dir.c_str());

@@ -68,3 +68,7 @@ add_test_executable_ex(NAME custom_authentication SOURCE custom_authentication.c
 # MXS-5239 Users with REQUIRE SSL should only work with SSL-enabled listeners.
 add_test_executable_ex(NAME require_ssl SOURCE require_ssl.cc
         CONFIG require_ssl.cnf VMS repl_backend backend_ssl)
+
+# Peer certificate host verification.
+add_test_executable_ex(NAME auth_verify_peer_host SOURCE auth_verify_peer_host.cc
+        CONFIG auth_verify_peer_host.cnf VMS repl_backend backend_ssl LABELS LISTENER_SSL)

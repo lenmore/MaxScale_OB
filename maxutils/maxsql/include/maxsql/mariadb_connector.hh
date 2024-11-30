@@ -352,4 +352,6 @@ struct MariaDBErrorResult
     std::string error_msg;
     std::string sqlstate;
 };
+
+void set_ssl_config(MYSQL* conn, const mxb::SSLConfig& ssl);
 }
