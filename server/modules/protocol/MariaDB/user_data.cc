@@ -50,6 +50,7 @@ constexpr auto npos = string::npos;
 const int ipv4min_len = 7;      // 1.1.1.1
 const string mysql_default_auth = "mysql_native_password";
 const string info_schema = "information_schema";    // Any user can access this even without a grant.
+const int ob_version_num = 50688;  // obproxy set a special version number.
 
 namespace mariadb_queries
 {
@@ -77,12 +78,17 @@ const string db_grants_query =
     "(SELECT a.user, a.host, a.db FROM mysql.procs_priv AS a) ) AS c;";
 
 // oceanbase not exists table tables_priv and proxies_priv
-const string db_grants_query_ob = "SELECT DISTINCT c.user, c.host, c.db FROM mysql.columns_priv AS c";
+const string db_grants_query_ob =
+    "SELECT DISTINCT * FROM ("
+    // and combine with column-level privs as db-level privs
+    "(SELECT a.user, a.host, a.db FROM mysql.columns_priv AS a) UNION "
+    // and combine with procedure-level privs as db-level privs.
+    "(SELECT a.user, a.host, a.db FROM mysql.procs_priv AS a) ) AS c;";
 
 const string proxies_query = "SELECT DISTINCT a.user, a.host FROM mysql.proxies_priv AS a "
                              "WHERE a.proxied_host <> '' AND a.proxied_user <> '';";
 
-const string proxies_query_ob = "SELECT DISTINCT a.user, a.host FROM mysql.columns_priv AS a ";
+const string proxies_query_ob = "SELECT DISTINCT a.user, a.host FROM mysql.columns_priv AS a ;";
 
 const string db_names_query = "SHOW DATABASES;";
 const string roles_query = "SELECT a.user, a.host, a.role FROM mysql.roles_mapping AS a;";
@@ -334,7 +340,7 @@ MariaDBUserManager::load_users_mariadb(mxq::MariaDB& con, SERVER* srv, UserDatab
     // diagnostics prints it.
     auto& info = srv->info();
     bool role_support = (info.version_num().total >= 100005);
-    bool is_oceanbase = (info.version.find("OceanBase") != std::string::npos);
+    bool is_oceanbase = ( info.version_num().total == ob_version_num );
 
     auto db_grants_query = is_oceanbase ? mariadb_queries::db_grants_query_ob : mariadb_queries::db_grants_query;
     auto proxies_query = is_oceanbase ? mariadb_queries::proxies_query_ob : mariadb_queries::proxies_query;
@@ -381,9 +387,16 @@ MariaDBUserManager::load_users_mariadb(mxq::MariaDB& con, SERVER* srv, UserDatab
         if (read_users_mariadb(move(users_res), info, output))
         {
             read_dbs_and_roles_mariadb(move(db_wc_grants_res), move(db_grants_res), move(roles_res), output);
+            MXB_WARNING("read_dbs_and_roles_mariadb : %s", svc_name());
             read_proxy_grants(move(proxies_res), output);
+            MXB_WARNING("read_proxy_grants : %s", svc_name());
             read_databases(move(dbs_res), output);
+            MXB_WARNING("read_databases : %s", svc_name());
             rval = LoadResult::SUCCESS;
+        }
+        else
+        {
+            MXB_WARNING("read_users_mariadb failed: %s", svc_name());
         }
     }
     return rval;
@@ -434,19 +447,21 @@ bool MariaDBUserManager::read_users_mariadb(QResult users, const SERVER::Version
     // "authentication_string"-column.
     bool have_pw_column = srv_info.type() == ServerType::MARIADB || srv_info.version_num().total < 50700;
 
+    bool is_oceanbase = ( srv_info.version_num().total == ob_version_num );
+
     // Get column indexes for the interesting fields. Depending on backend version, they may not all
     // exist. Some of the field name start with a capital and some don't. Should the index search be
     // ignorecase?
-    auto ind_user = users->get_col_index("User");
-    auto ind_host = users->get_col_index("Host");
-    auto ind_sel_priv = users->get_col_index("Select_priv");
-    auto ind_ins_priv = users->get_col_index("Insert_priv");
-    auto ind_upd_priv = users->get_col_index("Update_priv");
-    auto ind_del_priv = users->get_col_index("Delete_priv");
-    auto ind_super_priv = users->get_col_index("Super_priv");
+    auto ind_user = is_oceanbase ? users->get_col_index("user") : users->get_col_index("User");
+    auto ind_host = is_oceanbase ? users->get_col_index("host") : users->get_col_index("Host");
+    auto ind_sel_priv = is_oceanbase ? users->get_col_index("select_priv") : users->get_col_index("Select_priv");
+    auto ind_ins_priv = is_oceanbase ? users->get_col_index("insert_priv") : users->get_col_index("Insert_priv");
+    auto ind_upd_priv = is_oceanbase ? users->get_col_index("update_priv") : users->get_col_index("Update_priv");
+    auto ind_del_priv = is_oceanbase ? users->get_col_index("delete_priv") : users->get_col_index("Delete_priv");
+    auto ind_super_priv = is_oceanbase ? users->get_col_index("super_priv") : users->get_col_index("Super_priv");
     auto ind_ssl = users->get_col_index("ssl_type");
     auto ind_plugin = users->get_col_index("plugin");
-    auto ind_pw = users->get_col_index("Password");
+    auto ind_pw = is_oceanbase ? users->get_col_index("password") : users->get_col_index("Password");
     auto ind_auth_str = users->get_col_index("authentication_string");
     auto ind_is_role = users->get_col_index("is_role");
     auto ind_def_role = users->get_col_index("default_role");
@@ -474,9 +489,11 @@ bool MariaDBUserManager::read_users_mariadb(QResult users, const SERVER::Version
             // Require SSL if the entry is not empty.
             new_entry.ssl = !users->get_string(ind_ssl).empty();
 
+            const std::string ob_plugin_name = "ob_native_password";
             new_entry.plugin = mxb::tolower(users->get_string(ind_plugin));
-            if ("ob_native_password" == new_entry.plugin )
+            if (ob_plugin_name == new_entry.plugin )
             {
+                MXB_WARNING("rewrite plugin name: %s to mysql_native_password", new_entry.plugin.c_str());
                 new_entry.plugin = "mysql_native_password";
             }
             
@@ -498,6 +515,10 @@ bool MariaDBUserManager::read_users_mariadb(QResult users, const SERVER::Version
 
             output->add_entry(std::move(new_entry));
         }
+    }
+    else
+    {
+        MXB_WARNING("missing required fields: %s", srv_info.version_string());
     }
     return has_required_fields;
 }
